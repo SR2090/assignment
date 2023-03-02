@@ -6,6 +6,7 @@ import java.util.Collection;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,14 +14,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @EqualsAndHashCode
 @Document(collection = "User")
 public class User implements UserDetails{
-    @Field("_id")
+    @MongoId
     private String userId;
     private String userName;
     private String password;

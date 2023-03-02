@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 
 @Configuration
+// tells it where to 
 @EnableMongoRepositories(basePackages = "com.playapp.starter.repository")
 public class MongoConfiguration extends AbstractMongoClientConfiguration{
     @Override

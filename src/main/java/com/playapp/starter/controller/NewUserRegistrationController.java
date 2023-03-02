@@ -22,15 +22,7 @@ public class NewUserRegistrationController {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
     }  
-    @Bean
-    public UserDetailService userDetailService(UserRepository userRepo){
-        return username -> {
-            User user = userRepo.findByUserName(username);
-            if (user != null) return user;
 
-            throw new UsernameNotFoundException("User " + username + " not found");
-        };
-    }
     @PostMapping(consumes="application/json")
     public ResponseEntity<String> registerNewUser(@RequestBody User user){
         user.setPassword(passwordEncoder.encode(user.getPassword()));

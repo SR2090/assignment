@@ -14,5 +14,6 @@ import lombok.NoArgsConstructor;
 public class ResponseEventDto {
     private String eventName;
     private String createdAt;
+    private String organizerName;
     private List<String> userList;
 }

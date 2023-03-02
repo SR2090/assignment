@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.AbstractConverter;
 
 import com.playapp.starter.data.User;
-
+// move to converter
 /**
  * Class is used by model mapper to convert the list of users present inside event
  * into list of string of usernames obtained from the list of users.

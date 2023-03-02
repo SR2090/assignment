@@ -20,11 +20,16 @@ import org.springframework.http.ResponseEntity;
 
 import com.playapp.starter.data.Event;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 // conversion of reposiotry response to api response
 // DTO object
 @RestController
 @RequestMapping("/v1")
 public class PlayyoController {
+
+    private static final Logger loggerForPlayyoController = LoggerFactory.getLogger(PlayyoController.class);
 
     @Autowired
     private EventService eventService;
@@ -32,12 +37,19 @@ public class PlayyoController {
     @Autowired
     private ModelMapper modelMapper;
 
+    @GetMapping("/")
+    public String sayHello() {
+        loggerForPlayyoController.warn("SENDING RESPONSE sayHello");
+        return "text";
+    }
+
     @GetMapping("/events")
     public ResponseEntity<List<ResponseEventDto>> getAllEvents(){
         
         Optional<List<Event>> result = Optional.empty();
         try{
             result = eventService.allUpcomingEventsSortedTime();
+            loggerForPlayyoController.warn(" getAllEvents " + result);
         }catch(NullPointerException e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }catch(Exception e){
@@ -53,6 +65,7 @@ public class PlayyoController {
         Optional<Event> result = Optional.empty();
         try{
             result = eventService.eventDetail(Integer.parseInt(Id));
+            loggerForPlayyoController.warn(" getEntity " + result);
         }catch(NullPointerException e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }catch(Exception e){
@@ -63,8 +76,8 @@ public class PlayyoController {
 
     private ResponseEventDto convertEventToResponseEventDto(Event eventToConvert) {
         TypeMap<Event, ResponseEventDto> propertyMapper = this.modelMapper.createTypeMap(Event.class, ResponseEventDto.class);
-        // propertyMapper.addMapping(mapper -> mapper.using(new EventOrganizerToReponseEventOrganizerConverter())
-        //                     .map(Event::getOrganizer, ResponseEventDto::setOrganizerName));
+        propertyMapper.addMappings(mapper -> mapper.using(new EventOrganizerToReponseEventOrganizerConverter())
+                            .map(usr -> usr.getOrganizer().getUserName(), ResponseEventDto::setOrganizerName));
         propertyMapper.addMappings(mapper -> mapper.using(new ListOfUsersInEventToResponseEventDTO())
                                     .map(Event::getUsers, ResponseEventDto::setUserList));
 
@@ -78,7 +91,9 @@ public class PlayyoController {
         TypeMap<Event, ResponseEventDto> propertyMapper = this.modelMapper.createTypeMap(Event.class, ResponseEventDto.class);
         propertyMapper.addMappings(mapper -> mapper.using(new ListOfUsersInEventToResponseEventDTO())
                                     .map(Event::getUsers, ResponseEventDto::setUserList));
-        
+        propertyMapper.addMappings(mapper -> mapper.using(new EventOrganizerToReponseEventOrganizerConverter())
+                                    .map(usr -> usr.getOrganizer().getUserName(), ResponseEventDto::setOrganizerName));
+
 
         List<ResponseEventDto> results = eventsToConvert
                                         .stream()
