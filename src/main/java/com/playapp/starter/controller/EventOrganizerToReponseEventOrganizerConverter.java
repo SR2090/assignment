@@ -10,7 +10,7 @@ public class EventOrganizerToReponseEventOrganizerConverter extends AbstractConv
 
     @Override
     protected String convert(User targetUser) {
-        return targetUser.getUserName();
+        return targetUser.getUsername();
     }
 	
 }

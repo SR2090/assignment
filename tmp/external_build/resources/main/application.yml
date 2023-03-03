@@ -10,8 +10,13 @@ spring:
 
 logging:
   level:
-     root: OFF
+     root: DEBUG
      com.playapp.starter.dataloading: DEBUG
      com.playapp.starter.controller: WARN
+
+playyo: 
+    app:
+        jwtSecret: someSecret
+        jwtExpirationMs: 86400000
 
     

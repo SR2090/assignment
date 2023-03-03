@@ -23,7 +23,7 @@ public class Event {
     @Field("_id")
     private String mongoEventId;
     @Field("UniqueId")
-    private Integer integerId;
+    private Long integerId;
     @Indexed(name = "Name of event", unique = true)
     private String eventName;
     @CreatedDate

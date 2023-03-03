@@ -77,7 +77,7 @@ public class PlayyoController {
     private ResponseEventDto convertEventToResponseEventDto(Event eventToConvert) {
         TypeMap<Event, ResponseEventDto> propertyMapper = this.modelMapper.createTypeMap(Event.class, ResponseEventDto.class);
         propertyMapper.addMappings(mapper -> mapper.using(new EventOrganizerToReponseEventOrganizerConverter())
-                            .map(usr -> usr.getOrganizer().getUserName(), ResponseEventDto::setOrganizerName));
+                            .map(usr -> usr.getOrganizer().getUsername(), ResponseEventDto::setOrganizerName));
         propertyMapper.addMappings(mapper -> mapper.using(new ListOfUsersInEventToResponseEventDTO())
                                     .map(Event::getUsers, ResponseEventDto::setUserList));
 
@@ -92,7 +92,7 @@ public class PlayyoController {
         propertyMapper.addMappings(mapper -> mapper.using(new ListOfUsersInEventToResponseEventDTO())
                                     .map(Event::getUsers, ResponseEventDto::setUserList));
         propertyMapper.addMappings(mapper -> mapper.using(new EventOrganizerToReponseEventOrganizerConverter())
-                                    .map(usr -> usr.getOrganizer().getUserName(), ResponseEventDto::setOrganizerName));
+                                    .map(usr -> usr.getOrganizer().getUsername(), ResponseEventDto::setOrganizerName));
 
 
         List<ResponseEventDto> results = eventsToConvert

@@ -1,31 +1,33 @@
 package com.playapp.starter.data;
 
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
-@Data
-@AllArgsConstructor
-@EqualsAndHashCode
 @Document(collection = "User")
-public class User implements UserDetails{
+public class User{
     @MongoId
-    private String userId;
-    private String userName;
+    private String Id;
+    private Long userId;
+    private String email;
+    private String username;
     private String password;
+    private UserRole role;
+    
+    public User() {}
 
-    public String userId(){
+    public User(Long userId, String email, String username, String password, UserRole role){
+        this.userId = userId;
+        this.email = email;
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
+    public UserRole getRole(){
+        return role;
+    }
+
+    public Long getuserId(){
         return userId;
     }
 
@@ -33,55 +35,31 @@ public class User implements UserDetails{
         return password;
     }
 
-    public String getUserName(){
-        return userName;
+    public String getUsername(){
+        return username;
     }
 
-    public void setUserId(String userId){
+    public String getEmail(){
+        return email;
+    }
+
+    public void setRole(UserRole roleOfUser){
+        this.role = roleOfUser;
+    }
+
+    public void setEmail(String email){
+        this.email = email;
+    }
+
+    public void setUserId(Long userId){
         this.userId = userId;
     }
 
-    public void setGetPassword(String password){
+    public void setPassword(String password){
         this.password = password;
     }
 
-    public void setGetUserName(String userName){
-        this.userName = userName;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        // TODO Auto-generated method stub
-        return Arrays.asList(new SimpleGrantedAuthority("ROLE_USER"));
-    }
-
-    @Override
-    public String getUsername() {
-        // TODO Auto-generated method stub
-        return userName;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        // TODO Auto-generated method stub
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        // TODO Auto-generated method stub
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        // TODO Auto-generated method stub
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        // TODO Auto-generated method stub
-        return true;
+    public void setUserName(String userName){
+        this.username = userName;
     }
 }

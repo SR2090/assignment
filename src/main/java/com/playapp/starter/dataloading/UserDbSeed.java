@@ -44,10 +44,12 @@ public class UserDbSeed implements CommandLineRunner{
         loggerForCommandLine.warn("INSIDE THE addUserDataToMongoDbForLoggingIn");
         try{
             if(userRepository.count() == 0){
-                User mainUser = new User(null, null, null);
+                User mainUser = new User();
                 PasswordEncoder passwordEncoderInUser = new BCryptPasswordEncoder();
                 mainUser.setUserName("abc");
                 mainUser.setPassword(passwordEncoderInUser.encode("123"));
+                Long mainUserId = userRepository.count() + 1;
+                mainUser.setUserId(mainUserId);
                 userRepository.save(mainUser);
                 if(eventRepository.count() == 0){
                     Event event1  = new Event();
@@ -58,6 +60,8 @@ public class UserDbSeed implements CommandLineRunner{
                     event1.setCreatedAt(Instant.now());
                     event1.setStatusOfEvent(EventStatus.COMMENCED);
                     event1.setUsers(users);
+                    Long event1Id = eventRepository.count() + 1;
+                    event1.setIntegerId(event1Id);
                     eventRepository.save(event1);
                     Event event2  = new Event();
                     event2.setEventName("Only event 2");
@@ -65,6 +69,8 @@ public class UserDbSeed implements CommandLineRunner{
                     event2.setCreatedAt(Instant.now());
                     event2.setStatusOfEvent(EventStatus.COMMENCED);
                     event2.setUsers(users);
+                    Long event2Id = eventRepository.count() + 1;
+                    event1.setIntegerId(event2Id);
                     eventRepository.save(event2);
                 }
                 loggerForCommandLine.debug("After User Repo" + userRepository.count());

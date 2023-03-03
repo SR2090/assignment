@@ -19,7 +19,7 @@ public class ListOfUsersInEventToResponseEventDTO extends AbstractConverter<List
         // TODO Auto-generated method stub
        return sourceListOfUsers
        .stream()
-       .map(User::getUserName)
+       .map(User::getUsername)
        .collect(Collectors.toList());
     }
 	
