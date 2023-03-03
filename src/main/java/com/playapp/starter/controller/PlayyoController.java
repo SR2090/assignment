@@ -1,11 +1,11 @@
 package com.playapp.starter.controller;
 
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.playapp.starter.data.Event;
-import com.playapp.starter.exchange.ResponseEventDto;
+import com.playapp.starter.exchange.RequestJoinEvent;
 import com.playapp.starter.service.EventService;
 
 // conversion of reposiotry response to api response
@@ -32,17 +34,14 @@ public class PlayyoController {
     @Autowired
     private EventService eventService;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
     @GetMapping("/")
     public String sayHello() {
         loggerForPlayyoController.warn("SENDING RESPONSE sayHello");
-        return "text";
+        return "Public Accessible Path";
     }
 
     @GetMapping("/events")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('USER') OR hasRole('EVENTPARTICIPATED')")
     public ResponseEntity<String> getAllEvents(){
         
         Optional<List<Event>> result = Optional.empty();
@@ -59,6 +58,7 @@ public class PlayyoController {
         StringBuilder sb = new StringBuilder();
         for(Event e : result.get()){
             sb.append(e.getEventName());
+            sb.append(e.getCreatedAt().atZone(ZoneOffset.UTC).toLocalTime());
             sb.append("+");
         }
         // return new ResponseEntity<>(convertEventsToResponseEventDtos(result.get()), HttpStatus.OK);
@@ -67,7 +67,7 @@ public class PlayyoController {
 
     // This handles the details about individual event
 	@GetMapping("/event-details/{id}")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('USER') OR hasRole('EVENTPARTICIPATED')")
     public ResponseEntity<String> getEntity(@PathVariable("id") String Id){
         
         Optional<Event> result = Optional.empty();
@@ -85,32 +85,12 @@ public class PlayyoController {
         return ResponseEntity.ok(result.get().getEventName() + " " + result.get().getOrganizer().getUsername() );
     }
 
-    private ResponseEventDto convertEventToResponseEventDto(Event eventToConvert) {
-        TypeMap<Event, ResponseEventDto> propertyMapper = this.modelMapper.createTypeMap(Event.class, ResponseEventDto.class);
-        propertyMapper.addMappings(mapper -> mapper.using(new EventOrganizerToReponseEventOrganizerConverter())
-                            .map(usr -> usr.getOrganizer().getUsername(), ResponseEventDto::setOrganizerName));
-        propertyMapper.addMappings(mapper -> mapper.using(new ListOfUsersInEventToResponseEventDTO())
-                                    .map(Event::getUsers, ResponseEventDto::setUserList));
-
-        ResponseEventDto result = modelMapper.map(eventToConvert, ResponseEventDto.class);
-        return result;
+    @PostMapping("/joinEvent")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Boolean> joinEvent(@Valid @RequestBody RequestJoinEvent requestJoinEvent){
+        Integer uniqueEventId = Integer.parseInt(requestJoinEvent.getUniqueid());
+        String  usernameWhoWantToJoinEvent = requestJoinEvent.getUsername();
+        boolean response = eventService.userJoinsAnEvent(uniqueEventId, usernameWhoWantToJoinEvent);
+        return ResponseEntity.ok(response);
     }
-
-    private List<ResponseEventDto> convertEventsToResponseEventDtos(List<Event> eventsToConvert){
-        // setup the converter
-        // Need to specify how to convert List of users to List Of String
-        TypeMap<Event, ResponseEventDto> propertyMapper = this.modelMapper.createTypeMap(Event.class, ResponseEventDto.class);
-        propertyMapper.addMappings(mapper -> mapper.using(new ListOfUsersInEventToResponseEventDTO())
-                                    .map(Event::getUsers, ResponseEventDto::setUserList));
-        propertyMapper.addMappings(mapper -> mapper.using(new EventOrganizerToReponseEventOrganizerConverter())
-                                    .map(usr -> usr.getOrganizer().getUsername(), ResponseEventDto::setOrganizerName));
-
-
-        List<ResponseEventDto> results = eventsToConvert
-                                        .stream()
-                                        .map(element -> modelMapper.map(element, ResponseEventDto.class))
-                                        .collect(Collectors.toList());
-        return results;
-    }
-
 }

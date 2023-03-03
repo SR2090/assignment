@@ -4,7 +4,11 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,7 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +33,9 @@ import com.playapp.starter.service.UserDetailsImplementation;
 @RestController
 @RequestMapping("/v1/new-user-registration")
 public class NewUserRegistrationController {
+
+    private static final Logger loggerForNewUserRegistrationController = LoggerFactory.getLogger(PlayyoController.class);
+
     @Autowired
     private UserRepository userRepo;
     
@@ -41,11 +47,6 @@ public class NewUserRegistrationController {
 
     @Autowired
     private JwtUtils jwtUtils;
-
-    @GetMapping("/")
-    public String methodJustForTesting(){
-        return "ASDASD";
-    }
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest){
@@ -71,13 +72,15 @@ public class NewUserRegistrationController {
         Optional<User> userFromBodyByUsername = Optional.ofNullable(userRepo.findByUsername(user.getUsername()));
         Optional<User> userFromBodyByEmail = Optional.ofNullable(userRepo.findByEmail(user.getEmail()));
         if(userFromBodyByUsername.isPresent()){
-            return new ResponseEntity<String>(null).badRequest().body("User name "+user.getUsername() + "  already exist" );
+            return new ResponseEntity<String>("User name "+ user.getUsername() + "  already exist", HttpStatus.CONFLICT );
         }
         if(userFromBodyByEmail.isPresent()){
-            return new ResponseEntity<String>(null).badRequest().body("User with "+user.getEmail() + "  already dealt" );
+            return new ResponseEntity<String>("User with "+ user.getEmail() + "  already dealt", HttpStatus.CONFLICT);
         }
+        loggerForNewUserRegistrationController.warn("Parse from request " + user.getUsername() );
         Long Id = userRepo.count();
-        User newUser = new User(Id + 1, user.getEmail(), user.getUsername(), passwordEncoder.encode(user.getPassword()), UserRole.ROLE_USER);
+        String roleOfUser = user.getRole();
+        User newUser = new User(Id + 1, user.getEmail(), user.getUsername(), passwordEncoder.encode(user.getPassword()), UserRole.valueOf(roleOfUser));
         userRepo.save(newUser);
 
         return ResponseEntity.ok("User registered sucessfull");

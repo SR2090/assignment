@@ -32,6 +32,8 @@ public class Event {
     private List<User> users;
     @Field("Organizer")
     private User organizer;
+    @Field("EventSize")
+    private Integer eventSize;
     // if the event has started then 
     // no new user can be added to the event
     // handle during adding users to event

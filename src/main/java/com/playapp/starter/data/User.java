@@ -2,16 +2,22 @@ package com.playapp.starter.data;
 
 
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 @Document(collection = "User")
 public class User{
     @MongoId
     private String Id;
+    @Field("Userid")
     private Long userId;
+    @Field("Email")
     private String email;
+    @Field("Username")
     private String username;
+    @Field("Password")
     private String password;
+    @Field("Role")
     private UserRole role;
     
     public User() {}
