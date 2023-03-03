@@ -1,8 +1,5 @@
 package com.playapp.starter.controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -70,8 +67,9 @@ public class NewUserRegistrationController {
     
     @PostMapping("/signup")
     public ResponseEntity<String> registerNewUser(@Valid @RequestBody RequestUserDetails user){
-        Optional<User> userFromBodyByUsername = Optional.of(userRepo.findByUserName(user.getUsername()));
-        Optional<User> userFromBodyByEmail = Optional.of(userRepo.findByEmail(user.getEmail()));
+        // Optional.ofNullable prevents null pointer exception
+        Optional<User> userFromBodyByUsername = Optional.ofNullable(userRepo.findByUsername(user.getUsername()));
+        Optional<User> userFromBodyByEmail = Optional.ofNullable(userRepo.findByEmail(user.getEmail()));
         if(userFromBodyByUsername.isPresent()){
             return new ResponseEntity<String>(null).badRequest().body("User name "+user.getUsername() + "  already exist" );
         }
@@ -79,7 +77,7 @@ public class NewUserRegistrationController {
             return new ResponseEntity<String>(null).badRequest().body("User with "+user.getEmail() + "  already dealt" );
         }
         Long Id = userRepo.count();
-        User newUser = new User(Id + 1, user.getEmail(), user.getUsername(), user.getPassword(), UserRole.ROLE_USER);
+        User newUser = new User(Id + 1, user.getEmail(), user.getUsername(), passwordEncoder.encode(user.getPassword()), UserRole.ROLE_USER);
         userRepo.save(newUser);
 
         return ResponseEntity.ok("User registered sucessfull");

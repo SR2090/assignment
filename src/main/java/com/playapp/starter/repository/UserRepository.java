@@ -6,7 +6,7 @@ import com.playapp.starter.data.User;
 
 public interface UserRepository extends MongoRepository<User, String>{
     // Use the Spring data mongodb to store user details.
-    User findByUserName(String userName);
+    User findByUsername(String userName);
     
     User findByEmail(String email);
 }

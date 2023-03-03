@@ -17,7 +17,7 @@ public class RequestUserDetails {
         return password;
     }
 
-    public void setUsername(String username){
+    public void setUsername(String username) {
         this.username = username;
     }
 

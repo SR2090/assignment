@@ -10,7 +10,7 @@ spring:
 
 logging:
   level:
-     root: DEBUG
+     root: OFF
      com.playapp.starter.dataloading: DEBUG
      com.playapp.starter.controller: WARN
 

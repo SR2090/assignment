@@ -1,27 +1,25 @@
 package com.playapp.starter.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.playapp.starter.exchange.ResponseEventDto;
-import com.playapp.starter.service.EventService;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.playapp.starter.data.Event;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.playapp.starter.exchange.ResponseEventDto;
+import com.playapp.starter.service.EventService;
 
 // conversion of reposiotry response to api response
 // DTO object
@@ -44,34 +42,47 @@ public class PlayyoController {
     }
 
     @GetMapping("/events")
-    public ResponseEntity<List<ResponseEventDto>> getAllEvents(){
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<String> getAllEvents(){
         
         Optional<List<Event>> result = Optional.empty();
         try{
+            loggerForPlayyoController.warn("Inside the /events method");
             result = eventService.allUpcomingEventsSortedTime();
-            loggerForPlayyoController.warn(" getAllEvents " + result);
+            if(result.isEmpty()) return ResponseEntity.noContent().build();
+            loggerForPlayyoController.warn(" getAllEvents " + result.get().size());
         }catch(NullPointerException e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }catch(Exception e){
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(convertEventsToResponseEventDtos(result.get()), HttpStatus.OK);
+        StringBuilder sb = new StringBuilder();
+        for(Event e : result.get()){
+            sb.append(e.getEventName());
+            sb.append("+");
+        }
+        // return new ResponseEntity<>(convertEventsToResponseEventDtos(result.get()), HttpStatus.OK);
+        return ResponseEntity.ok(sb.toString());
     }
 
     // This handles the details about individual event
 	@GetMapping("/event-details/{id}")
-    public ResponseEntity<ResponseEventDto> getEntity(@PathVariable("id") String Id){
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<String> getEntity(@PathVariable("id") String Id){
         
         Optional<Event> result = Optional.empty();
         try{
+            loggerForPlayyoController.warn("Inside the /event-details/{id} method");
             result = eventService.eventDetail(Integer.parseInt(Id));
-            loggerForPlayyoController.warn(" getEntity " + result);
+            if(result.isEmpty()) return ResponseEntity.noContent().build();
+            loggerForPlayyoController.warn(" getEntity " + result.get());
         }catch(NullPointerException e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }catch(Exception e){
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(convertEventToResponseEventDto(result.get()), HttpStatus.OK);
+        // return new ResponseEntity<>(convertEventToResponseEventDto(result.get()), HttpStatus.OK);
+        return ResponseEntity.ok(result.get().getEventName() + " " + result.get().getOrganizer().getUsername() );
     }
 
     private ResponseEventDto convertEventToResponseEventDto(Event eventToConvert) {

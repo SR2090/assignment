@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.playapp.starter.data.Event;
 import com.playapp.starter.data.EventStatus;
 import com.playapp.starter.data.User;
+import com.playapp.starter.data.UserRole;
 import com.playapp.starter.repository.EventRepository;
 import com.playapp.starter.repository.UserRepository;
 
@@ -46,10 +47,11 @@ public class UserDbSeed implements CommandLineRunner{
             if(userRepository.count() == 0){
                 User mainUser = new User();
                 PasswordEncoder passwordEncoderInUser = new BCryptPasswordEncoder();
-                mainUser.setUserName("abc");
+                mainUser.setUsername("abc");
                 mainUser.setPassword(passwordEncoderInUser.encode("123"));
                 Long mainUserId = userRepository.count() + 1;
                 mainUser.setUserId(mainUserId);
+                mainUser.setRole(UserRole.ROLE_USER);
                 userRepository.save(mainUser);
                 if(eventRepository.count() == 0){
                     Event event1  = new Event();
@@ -70,7 +72,7 @@ public class UserDbSeed implements CommandLineRunner{
                     event2.setStatusOfEvent(EventStatus.COMMENCED);
                     event2.setUsers(users);
                     Long event2Id = eventRepository.count() + 1;
-                    event1.setIntegerId(event2Id);
+                    event2.setIntegerId(event2Id);
                     eventRepository.save(event2);
                 }
                 loggerForCommandLine.debug("After User Repo" + userRepository.count());
