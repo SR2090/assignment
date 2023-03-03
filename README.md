@@ -1,26 +1,40 @@
-This file can be used as a template for initializing and running spring projects.
+To execute:
+./gradlew bootrun
 
-What's included: 
-1. Gradle file created from start.spring.io
-2. Plugins for Spotbugs, Checkstyle and Jacoco included
-3. Other dependencies like Mongo, MySql and redis.
-4. Dockerfile to start mongo server and run the spring boot application within.
+Requires MongoDb running at defaul port 27017.
+Runs at port 8081
+It can be configured int the application.yml file
 
-Usage - 
+com.playapp.starter.dataloading This package contains code to see database with events and a user.
 
-1. To build the repository - 
+NewUserRegistrationController
+/v1/new-user-registration/signin 
 
-From the repository root, 
+Steps for token based authentication using prexisting user in database.
+1. Default user "abc" password "123"
+2. Api endpoint 
+  http://localhost:8081/v1/new-user-registration/signin
+3. Body raw JSON 
+{
+    "username":"abc",
+    "password":"123"
+}
+4. Result will be a bearer token.
+5. You can use it to call the PlayyoController api endpoints. The authorization should have a Bearer token_value.
 
-1. run `./gradlew build test`run the build
-2. run `./gradlew bootjar` to create executable jar. The jar will be located inside build directories.
+/v1/new-user-registration/signup
+Used to signup with new user
+role can have values specified in UserRole.java class under com.playapp.starter.data package.
+Example body in JSON format.
+{
+    "username": "exampleusername",
+    "email": "example@gmail.com",
+    "password": "examplepassword",
+    "role": "ROLE_USER" 
+}
 
-To run inside docker container, use below commands
-
-To build docker image, use the command below - `docker build -t your_tag_name  .`
-
-To run the generated container, use this command - `docker run -p8080:8080 your_tag_name`. This will run the server on 8080 port.. You can change the ports as per your needs. 
-
-
-License - 
-While this repository is licensed under APACHE 2.0 license, It is mandatory for users to share the readme.md and License file along with the changes they do in the contents.
+PlayyoController
+/v1/ public endpoint can be accessed without bearer token.
+/v1/events returns existing events in database sorted in descending order by createdAt.
+/v1/event-details/{id} Returns details about an event 
+/v1/joinEvent allows a user to join an event
